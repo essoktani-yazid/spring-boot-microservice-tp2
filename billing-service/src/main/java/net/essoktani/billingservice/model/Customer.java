@@ -4,7 +4,7 @@ import lombok.*;
 
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor @Builder
 public class Customer {
-    private String id;
+    private Long id;
     private String name;
     private String email;
 }
