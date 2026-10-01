@@ -12,6 +12,7 @@ public interface CustomerServiceRestClient {
     @CircuitBreaker(name="customer-service",fallbackMethod="getDefaultCustomer")
     Customer findCustomerById(@PathVariable Long id);
     default Customer getDefaultCustomer(Long id , Exception excpetion){
+        excpetion.printStackTrace();
         Customer customer = new Customer();
         customer.setId(id);
         customer.setName("default");
