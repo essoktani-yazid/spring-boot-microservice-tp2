@@ -1,16 +1,18 @@
 package net.essoktani.billingservice.web;
 
+import net.essoktani.billingservice.dto.BillRequestDTO;
 import net.essoktani.billingservice.entities.Bill;
+import net.essoktani.billingservice.entities.ProductItem;
 import net.essoktani.billingservice.feign.CustomerServiceRestClient;
 import net.essoktani.billingservice.feign.InventoryServiceRestClient;
 import net.essoktani.billingservice.model.Customer;
+import net.essoktani.billingservice.model.Product;
 import net.essoktani.billingservice.repository.BillRepository;
 import net.essoktani.billingservice.repository.ProductItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping
@@ -32,5 +34,26 @@ public class BillRestController {
             productItem.setProduct(inventoryServiceRestClient.getProduct(productItem.getProductId()));
         });
         return bill;
+    }
+    @PostMapping("/bills/full")
+    public Bill createBill(@RequestBody BillRequestDTO billRequestDTO) {
+        Bill bill = new Bill();
+        bill.setBillingDate(new Date());
+        bill.setCustomerId(billRequestDTO.getCustomerId());
+        bill.setProductsItems(new java.util.ArrayList<>());
+        billRepository.save(bill);
+
+        billRequestDTO.getProductItems().forEach(itemRequest -> {
+            Product product = inventoryServiceRestClient.getProduct(itemRequest.getProductId());
+
+            ProductItem productItem = new ProductItem();
+            productItem.setProductId(itemRequest.getProductId());
+            productItem.setQuantity(itemRequest.getQuantity());
+            productItem.setPrice(product.getPrice());
+            productItem.setBill(bill);
+            productItemRepository.save(productItem);
+        });
+
+        return getBillById(bill.getId());
     }
 }
