@@ -11,9 +11,9 @@ import java.util.Map;
 @RestController
 @RefreshScope
 public class ConfigTestRestController {
-    @Value("${global.params.p1}")
+    @Value("${global.params.p1:100}")
     private String p1;
-    @Value("${global.params.p2}")
+    @Value("${global.params.p2:200}")
     private String p2;
     @Autowired
     private CustomerConfigParams customerConfigParams;
